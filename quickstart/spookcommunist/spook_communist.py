@@ -16,12 +16,12 @@ from spuco.datasets import (TEST_SPLIT, TRAIN_SPLIT, VAL_SPLIT,
 from spuco.utils.random_seed import seed_randomness
 
 # Constants
-DOWNLOAD_URL = "https://ucla.box.com/shared/static/zrsx09ik7lqad1e389w06f1c4nbajo9z"
-DATASET_NAME = "spuco_birds"
-LANDBIRDS = "landbirds"
-WATERBIRDS = "waterbirds"
-LAND = "land"
-WATER = "water"
+DOWNLOAD_URL = "https://drive.google.com/uc?export=download&id=1BkdRz-kWpmWPE5DxnQLYJrKLROzigJgn" #! DOWNLOAD MANUALLY
+DATASET_NAME = "spookcommunist"
+SPOOK = "spook"
+COMMUNIST = "communist"
+SEPIA = "sepia"
+WOODS = "woods"
 MAJORITY_SIZE = {
     TRAIN_SPLIT: 10000,
     VAL_SPLIT: 500,
@@ -33,15 +33,15 @@ MINORITY_SIZE = {
     TEST_SPLIT: 500,
 }
 
-class SpuCoBirds(BaseSpuCoDataset):
+class SpookCoMMUNIST(BaseSpuCoDataset):
     """
-    Subset of SpuCoAnimals only including Bird classes.
+    Dataset containing images spooky monsters and prolific communists with either sepia or woods backgrounds.
     """
 
     def __init__(
         self,
         root: str,
-        download: bool = True,
+        download: bool = False, #! need to manually download
         label_noise: float = 0.0,
         split: str = TRAIN_SPLIT,
         transform: Optional[Callable] = None,
@@ -86,9 +86,13 @@ class SpuCoBirds(BaseSpuCoDataset):
             transforms.ToTensor()
         ])
         
+        self.filename = f"{self.root}/{DATASET_NAME}.tar.gz"
+        self.mask_type = None
+
+        
     def load_data(self) -> SourceData:
         """
-        Loads SpuCoBirds and sets spurious labels, label noise.
+        Loads SpookCoMMUNIST and sets spurious labels, label noise.
 
         :return: The spurious correlation dataset.
         :rtype: SourceData, List[int], List[int]
@@ -96,42 +100,42 @@ class SpuCoBirds(BaseSpuCoDataset):
         
         self.dset_dir = os.path.join(self.root, DATASET_NAME, self.split)
         if not os.path.exists(self.dset_dir):
-            if not self.download:
-                raise RuntimeError(f"Dataset not found {self.dset_dir}, run again with download=True")
-            self._download_data()
+            # if not self.download:
+            #     raise RuntimeError(f"Dataset not found {self.dset_dir}, run again with download=True")
+            # self._download_data()
             self._untar_data()
-            os.remove(self.filename)
+            # os.remove(self.filename)
             
         try:
             self.data = SourceData(verbose=False)
             
-            # Landbirds Land 
-            landbirds_land = os.listdir(os.path.join(self.dset_dir, f"{LANDBIRDS}/{LAND}"))
-            self.data.X.extend([str(os.path.join(self.dset_dir, f"{LANDBIRDS}/{LAND}", x)) for x in landbirds_land])
-            self.data.labels.extend([0] * len(landbirds_land))
-            self.data.spurious.extend([0] * len(landbirds_land))
-            assert len(landbirds_land) == MAJORITY_SIZE[self.split], f"Dataset corrupted or missing files [landbirds_land]. Expected {MAJORITY_SIZE[self.split]} files got {len(landbirds_land)}"
+            # spook sepia (minority in spook)
+            spook_sepia = os.listdir(os.path.join(self.dset_dir, f"{SPOOK}/{SEPIA}"))
+            self.data.X.extend([str(os.path.join(self.dset_dir, f"{SPOOK}/{SEPIA}", x)) for x in spook_sepia])
+            self.data.labels.extend([0] * len(spook_sepia))
+            self.data.spurious.extend([0] * len(spook_sepia))
+            # assert len(spook_sepia) == MAJORITY_SIZE[self.split], f"Dataset corrupted or missing files [landbirds_land]. Expected {MAJORITY_SIZE[self.split]} files got {len(spook_sepia)}"
             
-            # Landbirds Water 
-            landbirds_water = os.listdir(os.path.join(self.dset_dir, f"{LANDBIRDS}/{WATER}"))
-            self.data.X.extend([str(os.path.join(self.dset_dir, f"{LANDBIRDS}/{WATER}", x)) for x in landbirds_water])
-            self.data.labels.extend([0] * len(landbirds_water))
-            self.data.spurious.extend([1] * len(landbirds_water))   
-            assert len(landbirds_water) == MINORITY_SIZE[self.split], f"Dataset corrupted or missing files [landbirds_water]. Expected {MINORITY_SIZE[self.split]} files got {len(landbirds_water)}"
+            # spook woods (majority in spook)
+            spook_woods = os.listdir(os.path.join(self.dset_dir, f"{SPOOK}/{WOODS}"))
+            self.data.X.extend([str(os.path.join(self.dset_dir, f"{SPOOK}/{WOODS}", x)) for x in spook_woods])
+            self.data.labels.extend([0] * len(spook_woods))
+            self.data.spurious.extend([1] * len(spook_woods))   
+            # assert len(spook_woods) == MINORITY_SIZE[self.split], f"Dataset corrupted or missing files [landbirds_water]. Expected {MINORITY_SIZE[self.split]} files got {len(spook_woods)}"
             
-            # Waterbirds Land
-            waterbirds_land = os.listdir(os.path.join(self.dset_dir, f"{WATERBIRDS}/{LAND}"))
-            self.data.X.extend([str(os.path.join(self.dset_dir, f"{WATERBIRDS}/{LAND}", x)) for x in waterbirds_land])
-            self.data.labels.extend([1] * len(waterbirds_land))
-            self.data.spurious.extend([0] * len(waterbirds_land))
-            assert len(waterbirds_land) == MINORITY_SIZE[self.split], f"Dataset corrupted or missing files [waterbirds_land]. Expected {MINORITY_SIZE[self.split]} files got {len(waterbirds_land)}"
+            # communist sepia (majority in communist)
+            communist_sepia = os.listdir(os.path.join(self.dset_dir, f"{COMMUNIST}/{SEPIA}"))
+            self.data.X.extend([str(os.path.join(self.dset_dir, f"{COMMUNIST}/{SEPIA}", x)) for x in communist_sepia])
+            self.data.labels.extend([1] * len(communist_sepia))
+            self.data.spurious.extend([0] * len(communist_sepia))
+            # assert len(communist_sepia) == MINORITY_SIZE[self.split], f"Dataset corrupted or missing files [waterbirds_land]. Expected {MINORITY_SIZE[self.split]} files got {len(communist_sepia)}"
             
-            # Waterbirds Water
-            waterbirds_water = os.listdir(os.path.join(self.dset_dir, f"{WATERBIRDS}/{WATER}"))
-            self.data.X.extend([str(os.path.join(self.dset_dir, f"{WATERBIRDS}/{WATER}", x)) for x in waterbirds_water])
-            self.data.labels.extend([1] * len(waterbirds_water))
-            self.data.spurious.extend([1] * len(waterbirds_water)) 
-            assert len(waterbirds_water) == MAJORITY_SIZE[self.split], f"Dataset corrupted or missing files [waterbirds_water]. Expected {MAJORITY_SIZE[self.split]} files got {len(waterbirds_water)}"
+            # communist woods (minority in communist)
+            communist_woods = os.listdir(os.path.join(self.dset_dir, f"{COMMUNIST}/{WOODS}"))
+            self.data.X.extend([str(os.path.join(self.dset_dir, f"{COMMUNIST}/{WOODS}", x)) for x in communist_woods])
+            self.data.labels.extend([1] * len(communist_woods))
+            self.data.spurious.extend([1] * len(communist_woods)) 
+            # assert len(communist_woods) == MAJORITY_SIZE[self.split], f"Dataset corrupted or missing files [waterbirds_water]. Expected {MAJORITY_SIZE[self.split]} files got {len(communist_woods)}"
             
             if self.label_noise > 0.0:
                 self.data.clean_labels = deepcopy(self.data.labels)
@@ -143,14 +147,14 @@ class SpuCoBirds(BaseSpuCoDataset):
             
         return self.data, list(range(2)), list(range(2))
 
-    def _download_data(self):
+    def _download_data(self): #! need to manually download, this will not work
         self.filename = f"{self.root}/{DATASET_NAME}.tar.gz"
 
         response = requests.get(DOWNLOAD_URL, stream=True)
         response.raise_for_status()
 
         with open(self.filename, "wb") as file:
-            for chunk in tqdm(response.iter_content(chunk_size=1024), total=2952065, desc="Downloading SpuCoBirds", unit="KB"):
+            for chunk in tqdm(response.iter_content(chunk_size=1024), total=2952065, desc="Downloading SpuCoMMUNIST", unit="KB"):
                 file.write(chunk)
     
     def _untar_data(self):
@@ -175,3 +179,21 @@ class SpuCoBirds(BaseSpuCoDataset):
             return image, label
         else:
             return self.transform(image), label
+        
+    def load_image(self, filename: str):
+        image = Image.open(filename).convert("RGB")
+        
+        if self.mask_type is None:
+            return image 
+        
+        image = np.array(image)
+        mask_index = int(filename.split("/")[-1].split(".")[0])
+        spurious_mask = np.moveaxis(np.stack([self.masks[mask_index]] * 3), 0, 2)
+        if self.mask_type == MASK_SPURIOUS:
+            image = image * spurious_mask
+        elif self.mask_type == MASK_CORE:
+            image = image * np.invert(spurious_mask)
+        else:
+            raise ValueError(f"Mask Type must be one of None, {MASK_CORE}, {MASK_SPURIOUS}")
+        
+        return Image.fromarray(image) 

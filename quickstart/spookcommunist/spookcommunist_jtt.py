@@ -8,14 +8,15 @@ import pandas as pd
 import torch
 import torchvision.transforms as transforms
 from torch.optim import SGD
-from spuco.datasets import GroupLabeledDatasetWrapper, SpuCoAnimals
-from spuco.evaluate import Evaluator
+from spuco.datasets import GroupLabeledDatasetWrapper
+from spuco.evaluate import Evaluatora
 from spuco.evaluate.group_evaluator import GroupEvaluator
 from spuco.group_inference import JTTInference
 from spuco.robust_train import CustomSampleERM
 from spuco.models import model_factory
 from spuco.utils import Trainer, set_seed
 
+from spook_communist import SpookCoMMUNIST
 
 # parse the command line arguments
 parser = argparse.ArgumentParser()
@@ -23,8 +24,8 @@ parser.add_argument("--gpu", type=int, default=0)
 parser.add_argument("--seed", type=int, default=0)
 parser.add_argument("--root_dir", type=str, default="./data")
 parser.add_argument("--label_noise", type=float, default=0.0)
-parser.add_argument("--results_csv", type=str, default="./data/spuco_animals/results/jtt.csv")
-parser.add_argument("--stdout_file", type=str, default="spuco_animals_jtt.out")
+parser.add_argument("--results_csv", type=str, default="./data/spookcommunist/results/jtt.csv")
+parser.add_argument("--stdout_file", type=str, default="spookcommunist_jtt.out")
 parser.add_argument("--arch", type=str, default="resnet18", choices=["resnet18", "resnet50", "cliprn50"])
 parser.add_argument("--only_train_projection", action="store_true", help="only train projection, applicable only for cliprn50")
 parser.add_argument("--batch_size", type=int, default=128)
@@ -74,7 +75,7 @@ transform = transforms.Compose([
 # ERM #
 ######
 
-trainset = SpuCoAnimals(
+trainset = SpookCoMMUNIST(
     root=args.root_dir,
     label_noise=args.label_noise,
     split="train",
@@ -82,7 +83,7 @@ trainset = SpuCoAnimals(
 )
 trainset.initialize()
 
-valset = SpuCoAnimals(
+valset = SpookCoMMUNIST(
     root=args.root_dir,
     label_noise=args.label_noise,
     split="val",
@@ -90,7 +91,7 @@ valset = SpuCoAnimals(
 )
 valset.initialize()
 
-testset = SpuCoAnimals(
+testset = SpookCoMMUNIST(
     root=args.root_dir,
     label_noise=args.label_noise,
     split="test",
